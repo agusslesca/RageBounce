@@ -52,6 +52,6 @@ public class PogoController : MonoBehaviour
 
     public float GetDistance()
     {
-        return lastDistance;
+        return accumulatedDistance;
     }
 }
