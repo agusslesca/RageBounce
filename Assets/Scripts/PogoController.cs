@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class PogoController : MonoBehaviour
@@ -35,23 +36,51 @@ public class PogoController : MonoBehaviour
         }
     }
 
+    public float GetDistance()
+    {
+        return accumulatedDistance;
+    }
+
     void ApplyJump()
     {
         // Aplica toda la distancia acumulada en un solo movimiento
         Debug.Log("Distancia total acumulada: " + accumulatedDistance);
-        transform.position += Vector3.forward * accumulatedDistance;
+        
 
         // Guardar para el GameManager
         lastDistance = accumulatedDistance;
 
+        // Lanzar corutina de vuelo
+        StartCoroutine(FlyForward(accumulatedDistance));
+
         // Resetear
         accumulatedDistance = 0f;
         timer = 0f;
-        roundActive = true;
+        roundActive = false;
     }
 
-    public float GetDistance()
+    private IEnumerator FlyForward(float distance)
     {
-        return accumulatedDistance;
+        float duration = 2f; // duración del vuelo en segundos
+        float elapsed = 0f;
+
+        Vector3 startPos = transform.position;
+        Vector3 endPos = startPos + Vector3.forward * distance;
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+
+            // trayectoria tipo arco parabólico (para que “vuele”)
+            float height = Mathf.Sin(t * Mathf.PI) * 5f; // altura máxima = 5
+
+            transform.position = Vector3.Lerp(startPos, endPos, t) + Vector3.up * height;
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        transform.position = endPos; // asegurar que llegue al destino
+        roundActive = true; // volver a activar ronda después de volar
     }
 }
