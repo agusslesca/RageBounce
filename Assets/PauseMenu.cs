@@ -1,45 +1,33 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // Para el Quit (si quieres volver al menú principal)
 
 public class PauseMenu : MonoBehaviour
 {
-    public GameObject pauseMenu; // Panel del menú de pausa
+    public GameObject pauseMenuPanel;
     private bool isPaused = false;
 
-    void Update()
+    // Devuelve si el juego está pausado
+    public bool IsPaused()
     {
-        // También puedes pausar con la tecla Escape
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            TogglePause();
-        }
+        return isPaused;
     }
 
+    // Toggle del menú de pausa
     public void TogglePause()
     {
         isPaused = !isPaused;
-        pauseMenu.SetActive(isPaused);
-
-        if (isPaused)
-            Time.timeScale = 0f; // Pausa el juego
-        else
-            Time.timeScale = 1f; // Reanuda el juego
+        pauseMenuPanel.SetActive(isPaused);
+        UpdateTimeScale();
     }
 
     public void ResumeGame()
     {
         isPaused = false;
-        pauseMenu.SetActive(false);
-        Time.timeScale = 1f;
+        pauseMenuPanel.SetActive(false);
+        UpdateTimeScale();
     }
 
-    public void QuitGame()
+    private void UpdateTimeScale()
     {
-        // Si estás en editor
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+        Time.timeScale = isPaused ? 0f : 1f;
     }
 }
