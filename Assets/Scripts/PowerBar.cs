@@ -14,7 +14,9 @@ public class PowerBar : MonoBehaviour
     private float yellowMin = 0.30f;
     private float yellowMax = 0.70f;
 
-    // Se va actualizando siempre
+    // Enum para resultados
+    public enum JumpResult { Green, Yellow, Red }
+
     void Update()
     {
         if (movingRight)
@@ -26,23 +28,28 @@ public class PowerBar : MonoBehaviour
         if (slider.value <= 0f) movingRight = true;
     }
 
-    // Llamar cuando el jugador aprieta SPACE
-    public float GetMultiplier()
+    // Devuelve el resultado del salto
+    public JumpResult GetJumpResult()
     {
         float val = slider.value;
 
         if (val >= greenMin && val <= greenMax)
-        {
-            return 2f; // VERDE
-        }
+            return JumpResult.Green;
         else if (val >= yellowMin && val <= yellowMax)
-        {
-            return 1.2f; // AMARILLO
-        }
+            return JumpResult.Yellow;
         else
+            return JumpResult.Red;
+    }
+
+    // Devuelve el multiplicador según resultado
+    public float GetMultiplier(JumpResult result)
+    {
+        switch (result)
         {
-            return 0.5f; // ROJO
+            case JumpResult.Green: return 2f;
+            case JumpResult.Yellow: return 1.2f;
+            case JumpResult.Red: return 0.5f;
         }
+        return 1f;
     }
 }
-

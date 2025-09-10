@@ -18,16 +18,26 @@ public class PogoController : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            // Cada vez que toca espacio, acumula fuerza
+            // Cuando toco SPACE
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                float multiplier = powerBar.GetMultiplier();
+                // Verifico el resultado del salto
+                PowerBar.JumpResult result = powerBar.GetJumpResult();
+                float multiplier = powerBar.GetMultiplier(result);
+
                 float jump = baseJumpForce * multiplier;
                 accumulatedDistance += jump;
-                Debug.Log("Salto acumulado: +" + jump);
+
+                Debug.Log($"Salto acumulado: +{jump} ({result})");
+
+                // Si fue rojo  perder vida
+                if (result == PowerBar.JumpResult.Red)
+                {
+                    GameManager.instance.LoseLife();
+                }
             }
 
-            // Si pasó el tiempo  aplicar distancia
+            //  Cuando se termina el tiempo aplicar salto
             if (timer >= roundTime)
             {
                 roundActive = false;
@@ -35,6 +45,7 @@ public class PogoController : MonoBehaviour
             }
         }
     }
+
 
     public float GetDistance()
     {
