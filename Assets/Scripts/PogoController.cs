@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections;
 using UnityEngine;
 
 public class PogoController : MonoBehaviour
@@ -6,14 +7,18 @@ public class PogoController : MonoBehaviour
     public PowerBar powerBar;
     public float baseJumpForce = 5f;
 
-    private float accumulatedDistance = 0f;  // todos los saltos de la ronda
-    private float lastDistance = 0f;         // cuánto se movió en la última ronda
+    private float accumulatedDistance = 0f;
+    private float lastDistance = 0f;
     private float roundTime = 15f;
     private float timer = 0f;
     private bool roundActive = true;
 
     void Update()
     {
+        //  Si el juego no está activo, no hacer nada
+        if (!GameManager.instance.IsGameActive())
+            return;
+
         if (roundActive)
         {
             timer += Time.deltaTime;
@@ -30,14 +35,14 @@ public class PogoController : MonoBehaviour
 
                 Debug.Log($"Salto acumulado: +{jump} ({result})");
 
-                // Si fue rojo  perder vida
+                // Si fue rojo perder vida
                 if (result == PowerBar.JumpResult.Red)
                 {
                     GameManager.instance.LoseLife();
                 }
             }
 
-            //  Cuando se termina el tiempo aplicar salto
+            // Cuando se termina el tiempo aplicar salto
             if (timer >= roundTime)
             {
                 roundActive = false;
@@ -54,17 +59,11 @@ public class PogoController : MonoBehaviour
 
     void ApplyJump()
     {
-        // Aplica toda la distancia acumulada en un solo movimiento
         Debug.Log("Distancia total acumulada: " + accumulatedDistance);
-        
 
-        // Guardar para el GameManager
         lastDistance = accumulatedDistance;
-
-        // Lanzar corutina de vuelo
         StartCoroutine(FlyForward(accumulatedDistance));
 
-        // Resetear
         accumulatedDistance = 0f;
         timer = 0f;
         roundActive = false;
@@ -72,7 +71,7 @@ public class PogoController : MonoBehaviour
 
     private IEnumerator FlyForward(float distance)
     {
-        float duration = 2f; // duración del vuelo en segundos
+        float duration = 2f;
         float elapsed = 0f;
 
         Vector3 startPos = transform.position;
@@ -81,9 +80,7 @@ public class PogoController : MonoBehaviour
         while (elapsed < duration)
         {
             float t = elapsed / duration;
-
-            // trayectoria tipo arco parabólico (para que “vuele”)
-            float height = Mathf.Sin(t * Mathf.PI) * 5f; // altura máxima = 5
+            float height = Mathf.Sin(t * Mathf.PI) * 5f;
 
             transform.position = Vector3.Lerp(startPos, endPos, t) + Vector3.up * height;
 
@@ -91,7 +88,7 @@ public class PogoController : MonoBehaviour
             yield return null;
         }
 
-        transform.position = endPos; // asegurar que llegue al destino
-        roundActive = true; // volver a activar ronda después de volar
+        transform.position = endPos;
+        roundActive = true;
     }
 }
