@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections;
 using UnityEngine;
 
 public class PogoController : MonoBehaviour
@@ -15,9 +14,8 @@ public class PogoController : MonoBehaviour
 
     void Update()
     {
-        //  Si el juego no está activo, no hacer nada
-        if (!GameManager.instance.IsGameActive())
-            return;
+        //  No hacer nada si el juego no está activo
+        if (!GameManager.instance.IsGameActive()) return;
 
         if (roundActive)
         {
@@ -26,7 +24,6 @@ public class PogoController : MonoBehaviour
             // Cuando toco SPACE
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                // Verifico el resultado del salto
                 PowerBar.JumpResult result = powerBar.GetJumpResult();
                 float multiplier = powerBar.GetMultiplier(result);
 
@@ -35,7 +32,7 @@ public class PogoController : MonoBehaviour
 
                 Debug.Log($"Salto acumulado: +{jump} ({result})");
 
-                // Si fue rojo perder vida
+                // Si fue rojo  perder vida
                 if (result == PowerBar.JumpResult.Red)
                 {
                     GameManager.instance.LoseLife();
@@ -51,17 +48,17 @@ public class PogoController : MonoBehaviour
         }
     }
 
-
     public float GetDistance()
     {
         return accumulatedDistance;
     }
 
-    void ApplyJump()
+    public void ApplyJump()
     {
         Debug.Log("Distancia total acumulada: " + accumulatedDistance);
 
         lastDistance = accumulatedDistance;
+
         StartCoroutine(FlyForward(accumulatedDistance));
 
         accumulatedDistance = 0f;
@@ -81,7 +78,6 @@ public class PogoController : MonoBehaviour
         {
             float t = elapsed / duration;
             float height = Mathf.Sin(t * Mathf.PI) * 5f;
-
             transform.position = Vector3.Lerp(startPos, endPos, t) + Vector3.up * height;
 
             elapsed += Time.deltaTime;
@@ -89,6 +85,6 @@ public class PogoController : MonoBehaviour
         }
 
         transform.position = endPos;
-        roundActive = true;
+        roundActive = true; // volver a activar ronda
     }
 }

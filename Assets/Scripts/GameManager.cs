@@ -1,12 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager instance;
+    public static GameManager instance; // Singleton
 
     [Header("Tiempo")]
     public float timeLimit = 15f;
@@ -17,7 +16,7 @@ public class GameManager : MonoBehaviour
 
     [Header("Pogo")]
     public PogoController pogo;
-    private bool gameActive = false;
+    private bool gameActive = false; // empieza en falso hasta que se toque Start
 
     [Header("Vidas")]
     public int maxLives = 3;
@@ -29,8 +28,10 @@ public class GameManager : MonoBehaviour
     [Header("Vida Perdida")]
     public GameObject lifeLostPanel;
 
-    [Header("Game Over")]
-    public GameObject gameOverPanel; //  arrastrar panel del Canvas
+    [Header("UI Inicio / Derrota")]
+    public GameObject startButton;       // botón Start
+    public GameObject defeatMenu;        // panel de derrota
+    public string mainMenuScene = "MainMenu"; // nombre de tu menú principal
 
     void Awake()
     {
@@ -40,13 +41,14 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
-        timeRemaining = timeLimit;
         currentLives = maxLives;
         UpdateHeartsUI();
 
-        // Al inicio, aseguramos que el panel esté oculto
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
+        // al iniciar, tiempo y paneles apagados
+        timeRemaining = timeLimit;
+        if (timeText != null) timeText.gameObject.SetActive(false);
+        if (tiempoImg != null) tiempoImg.gameObject.SetActive(false);
+        if (defeatMenu != null) defeatMenu.SetActive(false);
     }
 
     void Update()
@@ -57,18 +59,27 @@ public class GameManager : MonoBehaviour
         timeRemaining -= Time.deltaTime;
         timeText.text = "Tiempo: " + Mathf.Ceil(timeRemaining);
 
+        // Mostrar distancia acumulada
         distanceText.text = "Distancia: " + Mathf.Round(pogo.GetDistance());
 
-        // Fin del juego
+        // Fin del tiempo  si todavía hay vidas, que el pogo salte
         if (timeRemaining <= 0f)
         {
-            EndGame();
+            timeRemaining = 0f;
+            gameActive = false; // pausa mientras salta
+            pogo.ApplyJump();   //  aquí se lanza el salto acumulado
         }
     }
 
+    // --- BOTÓN START ---
     public void StartGame()
     {
         gameActive = true;
+        timeRemaining = timeLimit; // reinicia el contador SOLO al empezar
+
+        if (timeText != null) timeText.gameObject.SetActive(true);
+        if (tiempoImg != null) tiempoImg.gameObject.SetActive(true);
+        if (startButton != null) startButton.SetActive(false); // ocultar botón
     }
 
     public bool IsGameActive()
@@ -76,6 +87,12 @@ public class GameManager : MonoBehaviour
         return gameActive;
     }
 
+    public void SetGameActive(bool value)
+    {
+        gameActive = value;
+    }
+
+    // --- VIDAS ---
     public void LoseLife()
     {
         currentLives--;
@@ -86,7 +103,7 @@ public class GameManager : MonoBehaviour
 
         if (currentLives <= 0)
         {
-            EndGame();
+            ShowDefeatMenu();
         }
     }
 
@@ -108,27 +125,30 @@ public class GameManager : MonoBehaviour
         lifeLostPanel.SetActive(false);
     }
 
-    //  función para terminar el juego
-    private void EndGame()
+    // --- DERROTA ---
+    private void ShowDefeatMenu()
     {
         gameActive = false;
 
-        timeText.gameObject.SetActive(false);
-        tiempoImg.gameObject.SetActive(false);
+        if (timeText != null) timeText.gameObject.SetActive(false);
+        if (tiempoImg != null) tiempoImg.gameObject.SetActive(false);
 
-        Debug.Log("Game Over!");
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+        if (defeatMenu != null)
+            defeatMenu.SetActive(true); // mostrar menú de derrota
     }
 
-    //  Botones del menú
+    // --- BOTONES DEL MENÚ DERROTA ---
     public void Retry()
     {
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        UnityEngine.SceneManagement.SceneManager.LoadScene(
+            UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
+        );
     }
 
     public void GoToMainMenu()
     {
-        SceneManager.LoadScene("MenuPrincipal"); //  asegurate de tener esta escena en Build Settings
+        UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuScene);
     }
 }
+
+
