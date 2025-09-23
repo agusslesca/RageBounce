@@ -33,6 +33,10 @@ public class GameManager : MonoBehaviour
     public GameObject defeatMenu;        // panel de derrota
     public string mainMenuScene = "MainMenu"; // nombre de tu menú principal
 
+    [Header("Puntaje")]
+    public int score = 0;
+    public TextMeshProUGUI scoreText; // arrastrar en inspector (opcional)
+
     void Awake()
     {
         if (instance == null) instance = this;
@@ -148,6 +152,14 @@ public class GameManager : MonoBehaviour
     public void GoToMainMenu()
     {
         UnityEngine.SceneManagement.SceneManager.LoadScene(mainMenuScene);
+    }
+
+    // --- POWER UP ---
+
+    public void AddScore(int amount)
+    {
+        score += amount;
+        if (scoreText != null) scoreText.text = score.ToString();
     }
 }
 

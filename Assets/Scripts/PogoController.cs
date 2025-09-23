@@ -87,4 +87,12 @@ public class PogoController : MonoBehaviour
         transform.position = endPos;
         roundActive = true; // volver a activar ronda
     }
+
+    // Permite que los powerups agreguen metros al acumulado
+    public void AddDistance(float meters)
+    {
+        accumulatedDistance += meters;
+        Debug.Log($"AddDistance: +{meters}m -> acumulado = {accumulatedDistance}");
+    }
+
 }
