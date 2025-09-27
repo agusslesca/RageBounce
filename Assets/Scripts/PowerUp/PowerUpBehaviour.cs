@@ -16,7 +16,7 @@ public class PowerUpBehaviour : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            GameManager gm = FindObjectOfType<GameManager>();
+            GameManager gm = FindAnyObjectByType<GameManager>();
             PogoController pogo = other.GetComponent<PogoController>();
 
             if (powerUpData != null)

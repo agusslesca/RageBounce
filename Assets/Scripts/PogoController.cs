@@ -5,6 +5,7 @@ public class PogoController : MonoBehaviour
 {
     public PowerBar powerBar;
     public float baseJumpForce = 5f;
+    public PowerUpSpawner powerUpSpawner;
 
     private float accumulatedDistance = 0f;
     private float lastDistance = 0f;
@@ -14,14 +15,12 @@ public class PogoController : MonoBehaviour
 
     void Update()
     {
-        //  No hacer nada si el juego no está activo
         if (!GameManager.instance.IsGameActive()) return;
 
         if (roundActive)
         {
             timer += Time.deltaTime;
 
-            // Cuando toco SPACE
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 PowerBar.JumpResult result = powerBar.GetJumpResult();
@@ -32,14 +31,12 @@ public class PogoController : MonoBehaviour
 
                 Debug.Log($"Salto acumulado: +{jump} ({result})");
 
-                // Si fue rojo  perder vida
                 if (result == PowerBar.JumpResult.Red)
                 {
                     GameManager.instance.LoseLife();
                 }
             }
 
-            // Cuando se termina el tiempo aplicar salto
             if (timer >= roundTime)
             {
                 roundActive = false;
@@ -48,6 +45,7 @@ public class PogoController : MonoBehaviour
         }
     }
 
+    // Asegúrate de que este método exista y sea público
     public float GetDistance()
     {
         return accumulatedDistance;
@@ -59,15 +57,29 @@ public class PogoController : MonoBehaviour
 
         lastDistance = accumulatedDistance;
 
-        StartCoroutine(FlyForward(accumulatedDistance));
-
-        accumulatedDistance = 0f;
-        timer = 0f;
-        roundActive = false;
+        if (accumulatedDistance > 0)
+        {
+            if (powerUpSpawner != null)
+            {
+                powerUpSpawner.SetPlayerTransform(transform);
+            }
+            StartCoroutine(FlyForward(accumulatedDistance));
+        }
+        else
+        {
+            roundActive = true;
+            accumulatedDistance = 0f;
+            timer = 0f;
+        }
     }
 
     private IEnumerator FlyForward(float distance)
     {
+        if (powerUpSpawner != null)
+        {
+            powerUpSpawner.StartSpawning();
+        }
+
         float duration = 2f;
         float elapsed = 0f;
 
@@ -85,14 +97,20 @@ public class PogoController : MonoBehaviour
         }
 
         transform.position = endPos;
-        roundActive = true; // volver a activar ronda
+
+        if (powerUpSpawner != null)
+        {
+            powerUpSpawner.StopSpawning();
+        }
+
+        accumulatedDistance = 0f;
+        timer = 0f;
+        roundActive = true;
     }
 
-    // Permite que los powerups agreguen metros al acumulado
     public void AddDistance(float meters)
     {
         accumulatedDistance += meters;
         Debug.Log($"AddDistance: +{meters}m -> acumulado = {accumulatedDistance}");
     }
-
 }
